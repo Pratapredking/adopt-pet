@@ -6,8 +6,9 @@ contract PetAdoption {
   address public owner;
   uint public petIndex = 0;
 
-  constructor() {
+  constructor(uint initialPetIndex) {
     owner = msg.sender;
+    petIndex = initialPetIndex;
   }
 
   function addPet() public {
