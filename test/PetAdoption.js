@@ -4,6 +4,7 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 describe("PetAdoption", function() {
 
   async function deployContractFixture() {
+    
     const PETS_COUNT = 5;
     const [owner, account2] = await ethers.getSigners();
     const PetAdoption = await ethers.getContractFactory("PetAdoption");
