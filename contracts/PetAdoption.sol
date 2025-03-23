@@ -6,6 +6,11 @@ contract PetAdoption {
   address public owner;
   uint public petIndex = 0;
 
+   mapping(uint => address) public petIdxToOwnerAddress;
+   mapping(address => uint[]) public ownerAddressToPetList;
+
+  uint[] public allAdoptedPets;
+
   constructor(uint initialPetIndex) {
     owner = msg.sender;
     petIndex = initialPetIndex;
@@ -18,8 +23,18 @@ contract PetAdoption {
 
   }
 
-  function getOwner() public view returns(address){
-    return owner;
-  }
+ 
+  function adoptPet(uint adoptIdx) public {
+     require(adoptIdx < petIndex, "Pet index out of bound!");
+     require(petIdxToOwnerAddress[adoptIdx] == address(0), "Pet is already adopted");
+ 
+     petIdxToOwnerAddress[adoptIdx] = msg.sender;
+     ownerAddressToPetList[msg.sender].push(adoptIdx);
+     allAdoptedPets.push(adoptIdx);
+   }
+ 
+   function getOwner() public view returns(address) {
+     return owner;
+   }
   
 }
