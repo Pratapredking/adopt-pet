@@ -4,7 +4,7 @@
   "description": "...",
   "main": "Hello.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "frontend": "npm run start --prefix frontend"
   },
   "repository": {
     "type": "git",
