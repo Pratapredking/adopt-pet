@@ -7,6 +7,10 @@ import { WalletNotDetected } from "./components/WalletNotDetected";
 import { ConnectWallet } from "./components/ConnectWallet";
 
 
+const HARDHAT_NETWORK_ID = Number(process.env.REACT_APP_NETWORK_ID);
+
+
+
 function Dapp() {
   const [pets, setPets] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(undefined);
@@ -16,35 +20,80 @@ function Dapp() {
       const res = await fetch("/pets.json");
       const data = await res.json();
       setPets(data);
-    } 
+    }
 
     fetchPets();
   }, []);
+
+
+  async function connectWallet() {
+    try {
+      const [address] = await window.ethereum.request({ method: "eth_requestAccounts" });
+
+      await checkNetwork();
+
+      setSelectedAddress(address);
+
+      window.ethereum.on("accountsChanged", ([newAddress]) => {
+
+        if (newAddress === undefined) {
+          setSelectedAddress(undefined);
+          return;
+        }
+
+        setSelectedAddress(newAddress);
+        // connection to SC
+        // getting owned pets
+      });
+
+    } catch (e) {
+      console.error(e.message);
+    }
+  }
+
+  async function switchNetwork() {
+    const chainIdHex = `0x${HARDHAT_NETWORK_ID.toString(16)}`;
+
+    return await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: chainIdHex }]
+    });
+  }
+
+  async function checkNetwork() {
+
+    if (window.ethereum.networkVersion !== HARDHAT_NETWORK_ID.toString()) {
+      return switchNetwork();
+    }
+
+    // alert("Correct Network. Don't switch!")
+    return null;
+  }
 
   if (window.ethereum === undefined) {
     return <WalletNotDetected />
   }
 
   if (!selectedAddress) {
-    return <ConnectWallet />
+    return <ConnectWallet connect={connectWallet} />
   }
 
   return (
     <div className="container">
-     <TxError/>
-      <br/>
-      
-      <Navbar/>   
+      <TxError />
+      <br />
+
+      <Navbar address={selectedAddress} />
 
 
-     
+
       <div className="items">
-      { 
-        pets.map((pet) =>
-        <PetItem key={pet.id} pet={pet}/>
-      )}
+        {
+          pets.map((pet) =>
+            <PetItem key={pet.id} pet={pet} />
+          )}
       </div>
-      
+
     </div>
   );
 }

@@ -7,7 +7,7 @@ describe("PetAdoption", function () {
 
     const PETS_COUNT = 5;
     const ADOPTED_PET_IDX = 0;
-  
+
     const [owner, account2, account3] = await ethers.getSigners();
     const PetAdoption = await ethers.getContractFactory("PetAdoption");
     const contract = await PetAdoption.deploy(PETS_COUNT);
@@ -15,9 +15,9 @@ describe("PetAdoption", function () {
     // return { owner, contract, account2, petsAddedCount: PETS_COUNT };
     await contract.connect(account3).adoptPet(ADOPTED_PET_IDX);
 
-    return { 
-      owner, account2, account3, 
-      contract,  
+    return {
+      owner, account2, account3,
+      contract,
       petsAddedCount: PETS_COUNT,
       adoptedPetIdx: ADOPTED_PET_IDX
     };
@@ -65,31 +65,31 @@ describe("PetAdoption", function () {
 
   })
 
-  describe("Adopt pet", function() {
-    it("Should revert with index out of bounds", async function() {
+  describe("Adopt pet", function () {
+    it("Should revert with index out of bounds", async function () {
       const { contract, petsAddedCount } = await loadFixture(deployContractFixture);
-    
-      
+
+
       await expect(contract.adoptPet(petsAddedCount)).to.be.revertedWith("Pet index out of bound!");
       await expect(contract.adoptPet(-1)).to.be.rejectedWith("value out-of-bounds");
     });
-    it("Should revert with pet is already adopted", async function() {
+    it("Should revert with pet is already adopted", async function () {
       const { contract, adoptedPetIdx } = await loadFixture(deployContractFixture);
 
       await expect(contract.adoptPet(adoptedPetIdx)).to.be.revertedWith("Pet is already adopted");
     });
 
-    it("Should adopt pet succesfuly", async function() {
+    it("Should adopt pet succesfuly", async function () {
       const { contract, account2 } = await loadFixture(deployContractFixture);
       //const idx = 1;
-     // await expect(contract.connect(account2).adoptPet(idx)).not.to.be.reverted;
+      // await expect(contract.connect(account2).adoptPet(idx)).not.to.be.reverted;
 
-     const firstPetIdx = 1;
-       const secondPetIdx = 4
+      const firstPetIdx = 1;
+      const secondPetIdx = 4
 
-       
-       await expect(contract.connect(account2).adoptPet(firstPetIdx)).not.to.be.reverted;
-       await contract.connect(account2).adoptPet(secondPetIdx);
+
+      await expect(contract.connect(account2).adoptPet(firstPetIdx)).not.to.be.reverted;
+      await contract.connect(account2).adoptPet(secondPetIdx);
 
       const petOwnerAddress = await contract.petIdxToOwnerAddress(firstPetIdx);
       const zeroAddress = await contract.petIdxToOwnerAddress(100);
@@ -99,16 +99,16 @@ describe("PetAdoption", function () {
 
       const petsByOwner = await contract.connect(account2).getAllAdoptedPetsByOnwer();
       const allAdoptedPets = await contract.getAllAdoptedPets();
- 
-       expect(petsByOwner.length).to.equal(2);
-       expect(allAdoptedPets.length).to.equal(3);
 
-        expect(await contract.ownerAddressToPetList(account2.address, 0)).to.equal(firstPetIdx);
-        expect(await contract.allAdoptedPets(2)).to.equal(4);
+      expect(petsByOwner.length).to.equal(2);
+      expect(allAdoptedPets.length).to.equal(3);
+
+      expect(await contract.ownerAddressToPetList(account2.address, 0)).to.equal(firstPetIdx);
+      expect(await contract.allAdoptedPets(2)).to.equal(4);
 
     });
 
-    
+
   })
 
 });
