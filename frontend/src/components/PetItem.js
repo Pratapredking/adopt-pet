@@ -1,5 +1,5 @@
 
-export function PetItem({ pet, adoptPet }) {
+export function PetItem({ pet, adoptPet, disabled }) {
 
   return (
 
@@ -29,6 +29,7 @@ export function PetItem({ pet, adoptPet }) {
       </div>
       <div className="action-menu">
         <button
+          disabled={disabled}
           onClick={adoptPet}
           className="action-button">Adopt
         </button>

@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 
 import contractAddress from "./contracts/contract-address-localhost.json";
 import PetAdoptionArtifact from "./contracts/PetAdoption.json";
+import { TxInfo } from "./components/TxInfo";
 
 
 const HARDHAT_NETWORK_ID = Number(process.env.REACT_APP_NETWORK_ID);
@@ -20,6 +21,9 @@ function Dapp() {
   const [selectedAddress, setSelectedAddress] = useState(undefined);
   const [contract, setContract] = useState(undefined);
   const [adoptedPets, setAdoptedPets] = useState([]);
+  const [txError, setTxError] = useState(undefined);
+  const [txInfo, setTxInfo] = useState(undefined);
+
 
   useEffect(() => {
     async function fetchPets() {
@@ -46,6 +50,8 @@ function Dapp() {
           setAdoptedPets([]);
           setSelectedAddress(undefined);
           setContract(undefined);
+          setTxError(undefined);
+          setTxInfo(undefined);
           return;
         }
 
@@ -85,19 +91,24 @@ function Dapp() {
       const adoptedPets = await contract.getAllAdoptedPets();
 
       if (adoptedPets.length > 0) {
+        console.log(adoptedPets);
         setAdoptedPets(adoptedPets.map(petIdx => Number(petIdx)));
       } else {
         setAdoptedPets([]);
       }
     } catch (e) {
-      console.error(e.message);
+      console.error("Hello Error" + e.message);
     }
   }
 
   async function adoptPet(id) {
     try {
       const tx = await contract.adoptPet(id);
+      setTxInfo(tx.hash);
+
       const receipt = await tx.wait();
+
+      await new Promise((res) => setTimeout(res, 2000));
 
       if (receipt.status === 0) {
         throw new Error("Transaction failed!");
@@ -107,6 +118,9 @@ function Dapp() {
       setAdoptedPets([...adoptedPets, id]);
     } catch (e) {
       console.error(e.reason);
+      setTxError(e?.reason);
+    } finally {
+      setTxInfo(undefined);
     }
   }
 
@@ -139,7 +153,14 @@ function Dapp() {
 
   return (
     <div className="container">
-      <TxError />
+      {txInfo &&
+        <TxInfo
+          message={txInfo}
+        />
+      }
+      {txError &&
+        <TxError message={txError} dismiss={() => setTxError(undefined)} />
+      }
       {JSON.stringify(adoptedPets)}
       <br />
 
@@ -153,6 +174,7 @@ function Dapp() {
             <PetItem
               key={pet.id}
               pet={pet}
+              disabled={adoptedPets.includes(pet.id)}
               adoptPet={() => adoptPet(pet.id)}
             />
           )}

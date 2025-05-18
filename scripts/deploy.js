@@ -10,7 +10,7 @@ async function main() {
   const address = await deployer.getAddress();
   console.log(`Deploying the contract with the account: ${address}`);
 
-  const PETS_COUNT = 3;
+  const PETS_COUNT = 5;
   const PetAdoption = await hre.ethers.getContractFactory("PetAdoption");
   const contract = await PetAdoption.deploy(PETS_COUNT);
 
